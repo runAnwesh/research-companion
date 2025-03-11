@@ -18,10 +18,9 @@ import langgraph.graph as lg
 from langgraph.graph import END, StateGraph
 
 # Configuration
-# API_KEY = os.getenv("GOOGLE_API_KEY")
-os.environ["GOOGLE_API_KEY"] = "AIzaSyD3I9V84iorKbFPeOqk_SP2o_ojTc5eRn0"
-# TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-os.environ["TAVILY_API_KEY"] = "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"
+API_KEY = os.getenv("GOOGLE_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
 # Initialize the LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
 search_tool = TavilySearchResults(max_results=5)
