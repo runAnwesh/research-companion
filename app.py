@@ -478,81 +478,78 @@ def create_gradio_interface():
     """Create a Gradio interface for the Time-Traveling Research Companion."""
     
     # Initialize progress updates
-    progress_updates = []
+    progress_updates = ["Initializing..."]
     
-    def update_progress():
-        return "\n".join(progress_updates)
-    
-    # Adjust the research_query function
-def research_query(query, api_key=None):
-    nonlocal progress_updates
-    progress_updates = ["Starting research process..."]
-    
-    # Set API key if provided
-    if api_key:
-        os.environ["TAVILY_API_KEY"] = api_key
-        
-    # Set OpenAI API key if not already set
-    if not os.getenv("GOOGLE_API_KEY") and os.getenv("GOOGLE_API_KEY_DEV"):
-        os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY_DEV")
-    
-    def progress_callback(updates):
+    def research_query(query, api_key=None):
         nonlocal progress_updates
-        progress_updates = updates
-    
-    try:
-        # Make sure we have an initialization that will work
-        if not os.getenv("GOOGLE_API_KEY"):
-            return ("ERROR: OpenAI API key not found. Please set your GOOGLE_API_KEY environment variable.", 
-                    "OpenAI API key not found. Please set your GOOGLE_API_KEY environment variable.")
+        progress_updates = ["Starting research process..."]
         
-        response, updates = run_time_travel_research_agent(query, progress_callback)
-        progress_updates = updates
-        return response, "\n".join(progress_updates)
-    except Exception as e:
-        error_message = f"An error occurred: {str(e)}"
-        progress_updates.append(error_message)
-        return f"I encountered an error while processing your request:\n\n{error_message}", "\n".join(progress_updates)
-    
-with gr.Blocks(title="Time-Traveling Research Companion") as demo:
-    gr.Markdown("# Time-Traveling Research Companion")
-    gr.Markdown("""
-    This AI agent uses LangChain and LangGraph to create an immersive research experience. 
-    Enter a research topic, and a historical persona will guide you through the information in a creative way!
-    """)
-    
-    # In the create_gradio_interface function
-    with gr.Row():
-        with gr.Column(scale=2):
-            query_input = gr.Textbox(
-                label="What would you like to research?",
-                placeholder="Enter a topic like 'ancient Egyptian architecture' or 'quantum computing'...",
-                lines=2
-            )
-            api_key_input = gr.Textbox(
-                label="Tavily API Key (optional)",
-                placeholder="Enter your Tavily API key if you have one",
-                type="password"
-            )
-            submit_btn = gr.Button("Begin Time Travel", variant="primary")
+        # Set API key if provided
+        if api_key:
+            os.environ["TAVILY_API_KEY"] = api_key
         
-        with gr.Column(scale=3):
-            output = gr.Markdown(label="Time-Traveling Research Results")
+        # Removed environment variable dependency assumption
+        def progress_callback(updates):
+            nonlocal progress_updates
+            progress_updates = updates
+        
+        try:
+            # Add fallback for missing API keys
+            if not os.getenv("GOOGLE_API_KEY"):
+                return (
+                    "ERROR: Google API key not found. Please set your GOOGLE_API_KEY environment variable.", 
+                    "Google API key not found."
+                )
+            
+            response, updates = run_time_travel_research_agent(query, progress_callback)
+            return response, "\n".join(progress_updates)
+        except Exception as e:
+            error_message = f"An error occurred: {str(e)}"
+            progress_updates.append(error_message)
+            return (
+                f"I encountered an error while processing your request:\n\n{error_message}", 
+                "\n".join(progress_updates)
+            )
+        
+    with gr.Blocks(title="Time-Traveling Research Companion") as demo:
+        gr.Markdown("# Time-Traveling Research Companion")
+        gr.Markdown("""
+        This AI agent uses LangChain and LangGraph to create an immersive research experience. 
+        Enter a research topic, and a historical persona will guide you through the information in a creative way!
+        """)
+        
+        # In the create_gradio_interface function
+        with gr.Row():
+            with gr.Column(scale=2):
+                query_input = gr.Textbox(
+                    label="What would you like to research?",
+                    placeholder="Enter a topic like 'ancient Egyptian architecture' or 'quantum computing'...",
+                    lines=2
+                )
+                api_key_input = gr.Textbox(
+                    label="Tavily API Key (optional)",
+                    placeholder="Enter your Tavily API key if you have one",
+                    type="password"
+                )
+                submit_btn = gr.Button("Begin Time Travel", variant="primary")
+            
+            with gr.Column(scale=3):
+                output = gr.Markdown(label="Time-Traveling Research Results")
 
-    with gr.Accordion("Progress Updates", open=False):
-        progress_output = gr.Markdown()
+        with gr.Accordion("Progress Updates", open=False):
+            progress_output = gr.Markdown()
 
-    submit_btn.click(
-        fn=research_query,
-        inputs=[query_input, api_key_input],
-        outputs=[output, progress_output]
-    )
-    
-    submit_btn.click(
-        fn=research_query,
-        inputs=[query_input, api_key_input],
-        outputs=[output, progress_output]
-    )
+        submit_btn.click(
+            fn=research_query,
+            inputs=[query_input, api_key_input],
+            outputs=[output, progress_output]
+        )
+        
+        submit_btn.click(
+            fn=research_query,
+            inputs=[query_input, api_key_input],
+            outputs=[output, progress_output]
+        )
     
     gr.Markdown("""
     ### How it works
