@@ -89,7 +89,7 @@ def determine_research_topic(state: AgentState) -> AgentState:
         "Extract the main research topic from the following query: {query}\n\n"
         "Return only the core research topic or subject."
     )
-    chain = prompt | ChatOpenAI(temperature=0) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0) | StrOutputParser()
     topic = chain.invoke({"query": state["query"]})
     
     # Record in conversation history
@@ -111,7 +111,7 @@ def select_historical_persona(state: AgentState) -> AgentState:
         "- modern_science: 20th Century America (physicist's perspective)\n\n"
         "Return only one of these exact options based on which would be most appropriate and interesting."
     )
-    chain = prompt | ChatOpenAI(temperature=0.2) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.2) | StrOutputParser()
     selected_era = chain.invoke({"query": state["query"]})
     
     # Fallback if the model doesn't return a valid option
@@ -226,7 +226,7 @@ def synthesize_research_notes(state: AgentState) -> AgentState:
         "Include important facts, dates, figures, and concepts. Organize the information in a clear, logical way."
     )
     
-    chain = prompt | ChatOpenAI(temperature=0.2) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.2) | StrOutputParser()
     research_notes = chain.invoke({"query": state["query"], "documents": combined_text})
     
     state["research_notes"] = [research_notes]
@@ -253,7 +253,7 @@ def select_narrative_style(state: AgentState) -> AgentState:
         "- letter: Present the information as a letter from the historical persona to the user\n\n"
         "Return only one of these exact options based on which would be most appropriate and interesting."
     )
-    chain = prompt | ChatOpenAI(temperature=0.3) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3) | StrOutputParser()
     selected_style = chain.invoke({"query": state["query"]})
     
     # Fallback if the model doesn't return a valid option
@@ -308,7 +308,7 @@ def generate_time_travel_response(state: AgentState) -> AgentState:
     """
     
     prompt = ChatPromptTemplate.from_template(prompt_template)
-    chain = prompt | ChatOpenAI(temperature=0.7) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7) | StrOutputParser()
     
     final_response = chain.invoke({
         "query": state["query"],
@@ -341,7 +341,7 @@ def should_generate_visuals(state: AgentState) -> str:
         "Would visual aids like timelines, maps, or diagrams significantly enhance understanding of this topic? "
         "Answer with just 'yes' or 'no'."
     )
-    chain = prompt | ChatOpenAI(temperature=0) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0) | StrOutputParser()
     response = chain.invoke({"query": state["query"]})
     
     if "yes" in response.lower():
@@ -370,7 +370,7 @@ def generate_visual_aids(state: AgentState) -> AgentState:
         "is clear and informative."
     )
     
-    chain = prompt | ChatOpenAI(temperature=0.4) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.4) | StrOutputParser()
     visual_aid = chain.invoke({
         "query": state["query"],
         "research_notes": "\n\n".join(state["research_notes"])
@@ -393,7 +393,7 @@ def finalize_response(state: AgentState) -> AgentState:
         "Keep it in character as {persona_name} from {persona_era}."
     )
     
-    chain = prompt | ChatOpenAI(temperature=0.5) | StrOutputParser()
+    chain = prompt | ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.5) | StrOutputParser()
     closing = chain.invoke({
         "response": state["final_response"],
         "persona_name": state["historical_persona"]["name"],
