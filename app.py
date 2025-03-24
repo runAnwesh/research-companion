@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import List, Dict, Any, Tuple, Optional
 import gradio as gr
 
@@ -15,6 +16,25 @@ from langchain.schema import Document
 
 import langgraph.graph as lg
 from langgraph.graph import END, StateGraph
+
+def setup_logging():
+    """Set up logging configuration."""
+    # Create logs directory if it doesn't exist
+    log_dir = 'logs'
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Configure logging to write to both console and file
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(os.path.join(log_dir, 'research_agent.log')),
+            logging.StreamHandler()
+        ]
+    )
+
+# Create a logger
+logger = logging.getLogger(__name__)
 
 # Historical personas
 HISTORICAL_PERSONAS = {
